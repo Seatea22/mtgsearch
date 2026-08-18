@@ -86,7 +86,7 @@ export const CARD_ROW_CONFIG: Array<CardField> = [
     {
         field: "id",
         default: 0,
-        header: "Id",
+        header: "ID",
         inputType: "none",
         valueType: "string",
         specifier: 'f_static_num',
@@ -115,7 +115,7 @@ export const CARD_ROW_CONFIG: Array<CardField> = [
     {
         field: "cheapest",
         default: true,
-        header: "Find Cheapest Option",
+        header: "Cheapest",
         inputType: "checkbox",
         valueType: "boolean",
         specifier: "f_boolean",
@@ -124,7 +124,7 @@ export const CARD_ROW_CONFIG: Array<CardField> = [
     {
         field: "flexible",
         default: false,
-        header: "Flexible Price",
+        header: "Flexible",
         inputType: "checkbox",
         valueType: "boolean",
         specifier: "f_boolean",
@@ -133,7 +133,7 @@ export const CARD_ROW_CONFIG: Array<CardField> = [
     {
         field: "relative",
         default: true,
-        header: "Relative to Market",
+        header: "Relative",
         inputType: "checkbox",
         valueType: "boolean",
         specifier: "f_boolean",
@@ -142,7 +142,7 @@ export const CARD_ROW_CONFIG: Array<CardField> = [
     {
         field: "allowedPrintings",
         default: [],
-        header: "Allowed Printings",
+        header: "Printings",
         inputType: "select",
         valueType: "array",
         specifier: "f_select",
@@ -156,7 +156,7 @@ export const CARD_ROW_CONFIG: Array<CardField> = [
     {
         field: "allowedConditions",
         default: [],
-        header: "Allowed Conditions",
+        header: "Conditions",
         inputType: "text",
         valueType: "array",
         specifier: "f_select",
@@ -173,7 +173,7 @@ export const CARD_ROW_CONFIG: Array<CardField> = [
     {
         field: "collections",
         default: [],
-        header: "Allowed Collections",
+        header: "Collections",
         inputType: "text",
         valueType: "array",
         specifier: "f_split",

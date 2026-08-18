@@ -1,7 +1,7 @@
-import React, { useEffect } from 'react';
-import { useState, useMemo, JSX } from 'react';
-import { Card, CardField, CardListProps, CARD_ROW_CONFIG } from './Card'
-import { Input, Table, Button } from 'reactstrap';
+import React from 'react';
+import { useState } from 'react';
+import { Card, CardListProps } from './Card'
+import { Input, Button } from 'reactstrap';
 
 
 export const AddCardBar: React.FC<CardListProps> = ({ cards, setCards }) => {
@@ -22,15 +22,7 @@ export const AddCardBar: React.FC<CardListProps> = ({ cards, setCards }) => {
     }
 
     return (
-        <div id="add-cards" style={{
-            display: "flex",
-            flexDirection: "row",
-            flexWrap: "wrap",
-            justifyContent: "flex-start",
-            alignItems: "flex-start",
-            alignContent: "stretch",
-            gap: "8px"
-        }}>
+        <div id="add-cards" className='horz'>
             <Input 
                 style={{width: "20%"}}
                 id='new-card-field' 
@@ -43,7 +35,7 @@ export const AddCardBar: React.FC<CardListProps> = ({ cards, setCards }) => {
                         addCard(e.currentTarget.value);
                     }
             }}></Input>
-            <Button onClick={() => addCard(newCardName)}>Add Card</Button>
+            <Button color='primary' onClick={() => addCard(newCardName)}>Add Card</Button>
         </div>
     )
 }

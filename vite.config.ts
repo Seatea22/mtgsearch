@@ -28,7 +28,7 @@ export default defineConfig({
       build: {
         fileName: 'tcgplayer-buyer-assistant.user.js',
         autoGrant: true,
-      },
+      }
     }),
     {
       name: 'add-private-network-header',

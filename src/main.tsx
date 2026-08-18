@@ -2,10 +2,10 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { TcgPlayerShop } from './Shop';
-import TcgPlayerSearch from './SearchModal';
+import TcgPlayerSearch from './MainModal';
+import { TcgPlayerScriptConfig } from './SiteConfig';
 
-const SELLER_ROTUES = ".seller-routes";
-let currentPageShopInfo: TcgPlayerShop | null = null;
+const scriptConfig = new TcgPlayerScriptConfig();
 
 function waitForElm(selector: string) {
     return new Promise(resolve => {
@@ -27,43 +27,24 @@ function waitForElm(selector: string) {
     });
 }
 
-function scrapeSellerInfo(): TcgPlayerShop | null {
-    const sellerInfo = document.querySelector(SELLER_ROTUES);
-    if (!sellerInfo) {
-        console.error("Seller info not found.");
-        return null;
-    }
+await waitForElm(scriptConfig.sellerInfoId).then(async () => {
+    scriptConfig.shopInfo.scrapeSellerInfo(scriptConfig.sellerInfoId);
+    console.log(scriptConfig);
 
-    const sellerAttributes = sellerInfo.attributes;
-    if (!sellerAttributes) {
-        console.error("Seller attributes not found.");
-        return null;
-    }
-
-    const storeName = sellerAttributes.getNamedItem("storename");
-    const sellerId = sellerAttributes.getNamedItem("sellerkey");
-
-    return {
-      name: storeName?.value ? storeName.value.trim() : "Unknown Shop Name",
-      id: sellerId?.value ? sellerId.value.trim() : null
-    };
-}
-
-await waitForElm(SELLER_ROTUES).then(async () => {
-  ReactDOM.createRoot(
-    ( () => {
-        currentPageShopInfo = scrapeSellerInfo();
+    ReactDOM.createRoot(
+        ( () => {
+            
+            
+            if (!scriptConfig.shopInfo) throw new Error(`Shop info is null!`);
+            if (!scriptConfig.shopInfo.id) throw new Error(`There was an error getting the shop ID!`);
         
-        if (!currentPageShopInfo) throw new Error(`Shop info is null!`);
-        if (!currentPageShopInfo.id) throw new Error(`There was an error getting the shop ID!`);
-      
-        const app = document.createElement('div');
-        document.body.prepend(app);
-        return app;
-      })(),
-    ).render(
-    <React.StrictMode>
-      <TcgPlayerSearch name={currentPageShopInfo.name} id={currentPageShopInfo.id}/>
-    </React.StrictMode>,
-  );
+            const app = document.createElement('div');
+            document.body.prepend(app);
+            return app;
+        })(),
+        ).render(
+        <React.StrictMode>
+            <TcgPlayerSearch config={scriptConfig}/>
+        </React.StrictMode>,
+    );
 });

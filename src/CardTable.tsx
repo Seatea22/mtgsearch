@@ -1,7 +1,8 @@
 import React from 'react';
 import { useState, useEffect, useMemo, JSX } from 'react';
 import { Card, CardField, CardListProps, CARD_ROW_CONFIG } from './Card'
-import { Placeholder, Table, Button } from 'reactstrap';
+import { Table, Button, Input, Label } from 'reactstrap';
+import './assets/styles.css';
 
 type SortKey = keyof Card;
 type CellType = boolean | number | string | string[];
@@ -105,6 +106,7 @@ const SplitInput: React.FC<SplitInputProps> = ({ field, value, cardId, updateCar
 };
 
 export const CardTable: React.FC<CardListProps> = ({ cards, setCards }) => {
+    const [currentSearch, setCurrentSearch] = useState<string>('');
     const [sortKey, setSortKey] = useState<SortKey>('id');
     const [sortAsc, setSortAsc] = useState<boolean>(true);
 
@@ -135,6 +137,18 @@ export const CardTable: React.FC<CardListProps> = ({ cards, setCards }) => {
         });
         return sorted;
     }, [cards, sortKey, sortAsc]);
+
+    const filterString = (str: string): string => str.toLowerCase().replace(/\s/g, "");
+
+    const shownCards = useMemo(() => {
+        const shown = [...sortedCards].filter((card) => {
+            const cardFiltered = filterString(card.name)
+            const searchFiltered = filterString(currentSearch);
+
+            return cardFiltered.includes(searchFiltered);
+        });
+        return shown;
+    }, [sortedCards, currentSearch]);
 
     const handleSort = (key: SortKey) => {
         if (key === sortKey) {
@@ -221,44 +235,55 @@ export const CardTable: React.FC<CardListProps> = ({ cards, setCards }) => {
     }
 
     return (
-        <div style={{ maxHeight: '500px', overflowY: 'auto' }}>
-            <Table striped hover responsive>
-                <thead>
-                    <tr>
-                    {CARD_ROW_CONFIG.map((col) => (
-                        <th
-                            key={`${col.field}-header`}
-                            onClick={() => handleSort(col.field as SortKey)}
-                            style={{ 
-                                cursor: 'pointer',
-                                position: 'sticky',
-                                top: 0,
-                                background: 'white',
-                                zIndex: 1
-                            }}
-                        >
-                            {col.header} {sortKey === col.field ? (sortAsc ? '▲' : '▼') : ''}
-                        </th>
-                    ))}
-                    <th style={{ position: 'sticky', top: 0, background: 'white', zIndex: 1 }}>Remove</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {sortedCards.map((card, index) => (
-                        <tr key={`card-${card.id}`}>
-                            {CARD_ROW_CONFIG.map((col: CardField) => (
-                                <td key={`$card-${card.id}-${col.field}`}>
-                                    {renderCellValue(col.field, card[col.field as SortKey], card.id)}
-                                </td>
-                            ))}
-                                <td>
-                                    <Button onClick={() => removeCard(card.id)}>Remove</Button>
-                                </td>
-
+        <div>
+            <div className='horz'>
+                <Label for='search-input'>Search:</Label>
+                <Input 
+                    id='search-input' 
+                    type='text' 
+                    width={'auto'}
+                    onChange={(e) => setCurrentSearch(e.target.value)}
+                />
+            </div>
+            <div style={{ maxHeight: '45vh', overflowY: 'auto', overflowX: 'auto' }}>
+                <Table striped hover>
+                    <thead>
+                        <tr>
+                        {CARD_ROW_CONFIG.map((col) => (
+                            <th
+                                key={`${col.field}-header`}
+                                onClick={() => handleSort(col.field as SortKey)}
+                                style={{ 
+                                    cursor: 'pointer',
+                                    position: 'sticky',
+                                    top: 0,
+                                    background: 'white',
+                                    zIndex: 1,
+                                    fontSize: '0.85rem'
+                                }}
+                            >
+                                {col.header} {sortKey === col.field ? (sortAsc ? '▲' : '▼') : ''}
+                            </th>
+                        ))}
                         </tr>
-                    ))}
-                </tbody>
-            </Table>
+                    </thead>
+                    <tbody>
+                        {shownCards.map((card, index) => (
+                            <tr key={`card-${card.id}`}>
+                                {CARD_ROW_CONFIG.map((col: CardField) => (
+                                    <td key={`$card-${card.id}-${col.field}`}>
+                                        {renderCellValue(col.field, card[col.field as SortKey], card.id)}
+                                    </td>
+                                ))}
+                                    <td>
+                                        <Button color='danger' onClick={() => removeCard(card.id)}>X</Button>
+                                    </td>
+
+                            </tr>
+                        ))}
+                    </tbody>
+                </Table>
+            </div>
         </div>
     );
 };
