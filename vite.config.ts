@@ -7,7 +7,7 @@ export default defineConfig({
     cors: true,
     hmr: {
       protocol: 'ws',
-      host: '127.0.0.1',
+      host: 'localhost',
       port: 5173
     }
   },
@@ -23,7 +23,7 @@ export default defineConfig({
         author: 'Seatea22',
         match: ['https://www.tcgplayer.com/sellers/*/*'],
         icon: 'https://www.google.com/s2/favicons?sz=64&domain=tcgplayer.com',
-        grant: [],
+        grant: ['GM.cookie', 'GM.download', 'GM_setClipboard', 'GM.addStyle'],
       },
       build: {
         fileName: 'tcgplayer-buyer-assistant.user.js',

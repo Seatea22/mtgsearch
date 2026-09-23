@@ -1,14 +1,16 @@
 import { TcgPlayerShop } from "./Shop";
+import { TcgPlayerUser } from "./User";
 
 export class TcgPlayerApi {
     algorithm: string = "revenue_dismax";
     shippingCountry: string = "US";
     shopInfo: TcgPlayerShop;
+    userInfo: TcgPlayerUser;
 
-    constructor(shopInfo: TcgPlayerShop) {
+    constructor(shopInfo: TcgPlayerShop, userInfo: TcgPlayerUser) {
         this.shopInfo = shopInfo;
+        this.userInfo = userInfo;
     }
-
     
     #getCardUrl = (cardName: string) => {
         return `https://mp-search-api.tcgplayer.com/v1/search/request?q=${encodeURIComponent(cardName)}&isList=true`;
@@ -51,6 +53,11 @@ export class TcgPlayerApi {
             console.error("Shop info is null!");
             return false;
         }
+
+        if (!this.userInfo) {
+            console.error("User info is null!");
+            return false;
+        }
         
         const requestBody = {
             "sku": condId,
@@ -63,7 +70,7 @@ export class TcgPlayerApi {
         };
 
         try {
-            const response = await fetch(`https://mpgateway.tcgplayer.com/v1/cart/${this.shopInfo.cartId}/item/add`, {
+            const response = await fetch(`https://mpgateway.tcgplayer.com/v1/cart/${this.userInfo.cartId}/item/add`, {
                 method: "POST",
                 credentials: "include",
                 headers: {

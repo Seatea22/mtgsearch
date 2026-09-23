@@ -131,23 +131,19 @@ export const CardTable: React.FC<CardListProps> = ({ cards, setCards }) => {
     };
 
     const sortedCards = useMemo(() => {
-        const sorted = [...cards].sort((a, b) => {
+        return [...cards].sort((a, b) => {
             const result = compareValues(a[sortKey], b[sortKey]);
             return sortAsc ? result : -result;
         });
-        return sorted;
     }, [cards, sortKey, sortAsc]);
 
     const filterString = (str: string): string => str.toLowerCase().replace(/\s/g, "");
 
     const shownCards = useMemo(() => {
-        const shown = [...sortedCards].filter((card) => {
-            const cardFiltered = filterString(card.name)
-            const searchFiltered = filterString(currentSearch);
-
-            return cardFiltered.includes(searchFiltered);
-        });
-        return shown;
+        const searchFiltered = filterString(currentSearch);
+        const result = sortedCards.filter((card) => filterString(card.name).includes(searchFiltered));
+        console.log('searching for:', JSON.stringify(searchFiltered), 'against', sortedCards.length, 'cards ->', result.length, 'matched');
+        return result;
     }, [sortedCards, currentSearch]);
 
     const handleSort = (key: SortKey) => {

@@ -33,9 +33,9 @@ export const TerminalOutput: React.FC<TerminalOutputProps> = ({
             ref={bodyRef}
             style={{ height }}
         >
-            {lines.map((line) => (
+            {lines.map(line => (
                     <div
-                        key={line.id}
+                        key={`$line-${line.id}`}
                         className={`terminal-line terminal-${line.type ?? "info"}`}
                     >
                         <span className="terminal-text">{`> ${line.text}`}</span>

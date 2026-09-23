@@ -53,7 +53,7 @@ export const getModalVisibility = (hostname: string): Promise<boolean> => {
 
 interface DataSectionProps extends CardListProps {
     searchSettings: SearchSettings;
-    setSearchSettings: React.Dispatch<React.SetStateAction<SearchSettings>>;
+    setSearchSettings: (settings: SearchSettings) => void;
 }
 
 interface DataFileFormat {
@@ -63,7 +63,7 @@ interface DataFileFormat {
     cards: Card[];
 }
 
-export const DataSection: React.FC<DataSectionProps> = ({ cards, setCards, searchSettings }) => {
+export const DataSection: React.FC<DataSectionProps> = ({ cards, setCards, searchSettings, setSearchSettings }) => {
     const [statusText, setStatusText] = useState('');
     const [statusColor, setStatusColor] = useState('danger');
     const STATUS_DURATION = 3000;
@@ -89,17 +89,26 @@ export const DataSection: React.FC<DataSectionProps> = ({ cards, setCards, searc
         const jsonString = dataToJson();
         const blob = new Blob([jsonString], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
+
         GM_download({
             url: url,
             name: 'card-price-table.json',
-            saveAs: true
-        })
-        URL.revokeObjectURL(url);
-        showStatus('Exported cards.', false);
+            saveAs: true,
+            onload: () => {
+                URL.revokeObjectURL(url);
+                showStatus('Exported cards.', false);
+            },
+            onerror: (err) => {
+                URL.revokeObjectURL(url);
+                console.error('GM_download failed:', err);
+                showStatus('Export failed.', true);
+            }
+        });
     }
 
-    const dataToSearchSettings = (data: DataFileFormat) => {
-        searchSettings = {
+    const dataToSearchSettings = (data: DataFileFormat): SearchSettings => {
+        return {
+            ignoreArtCards: searchSettings.ignoreArtCards,
             maxMargin: data.maxMargin, 
             marginPercent: data.marginPercent, 
             comparisonRatio: data.comparisonRatio,
@@ -120,7 +129,7 @@ export const DataSection: React.FC<DataSectionProps> = ({ cards, setCards, searc
             try {
                 const parsed: DataFileFormat = JSON.parse(String(evt.target?.result));
                 if (confirm("Do you want to overwrite your current list?")) {
-                    dataToSearchSettings(parsed);
+                    setSearchSettings(dataToSearchSettings(parsed));
                     setCards(parsed.cards.map((card) => new Card(card)));
                     showStatus('Imported cards.', false);
                 }
@@ -144,7 +153,7 @@ export const DataSection: React.FC<DataSectionProps> = ({ cards, setCards, searc
                 return;
             }
             const parsed: DataFileFormat = JSON.parse(raw);
-            dataToSearchSettings(parsed);
+            setSearchSettings(dataToSearchSettings(parsed));
             setCards(parsed.cards.map((card) => new Card(card)));
             showStatus('Loaded cards from storage.', false);
         } catch {
@@ -167,7 +176,7 @@ export const DataSection: React.FC<DataSectionProps> = ({ cards, setCards, searc
         try {
             GM_setClipboard(exported, 'json');
             showStatus('Copied to clipboard.', false);
-        } catch (err) {
+        } catch {
             showStatus('Failed to copy to clipboard.', true);
         }
     }

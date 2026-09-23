@@ -1,50 +1,56 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { TcgPlayerShop } from './Shop';
 import TcgPlayerSearch from './MainModal';
-import { TcgPlayerScriptConfig } from './SiteConfig';
+import { SELLER_INFO_ID, TcgPlayerScriptConfig } from './SiteConfig';
+import { waitForElm } from './UtilUI';
 
-const scriptConfig = new TcgPlayerScriptConfig();
 
-function waitForElm(selector: string) {
-    return new Promise(resolve => {
-        if (document.querySelector(selector)) {
-            return resolve(document.querySelector(selector));
+
+function Root() {
+    const [config, setConfig] = React.useState<TcgPlayerScriptConfig | null>(null);
+
+    const setupScriptConfig = async () => {
+        const newConfig = new TcgPlayerScriptConfig();
+        await newConfig.shopInfo.scrapeSellerInfo(SELLER_INFO_ID);
+        await newConfig.userInfo.detectLogin();
+        await newConfig.userInfo.getStoreCartCookie(newConfig.hostname);
+        
+        console.log(newConfig);
+        return newConfig;
+    }
+
+    React.useEffect(() => {
+        let lastPath = location.pathname;
+
+        const load = async () => {
+            const cfg = await setupScriptConfig();
+            console.log(cfg);
+            if (cfg.shopInfo?.id) setConfig(cfg);
+        };
+
+        waitForElm(SELLER_INFO_ID).then(load);
+
+        const checkRoute = () => {
+            if (location.pathname === lastPath) return;
+            lastPath = location.pathname;
+            waitForElm(SELLER_INFO_ID).then(load).catch(() => setConfig(null));
+        };
+
+        for (const method of ['pushState', 'replaceState'] as const) {
+            const orig = history[method];
+            history[method] = function (...args) {
+                orig.apply(this, args);
+                checkRoute();
+            };
         }
+        window.addEventListener('popstate', checkRoute);
+    }, []);
 
-        const observer = new MutationObserver(mutations => {
-            if (document.querySelector(selector)) {
-                observer.disconnect();
-                resolve(document.querySelector(selector));
-            }
-        });
-
-        observer.observe(document.body, {
-            childList: true,
-            subtree: true
-        });
-    });
+    if (!config) return null;
+    return <TcgPlayerSearch config={config} setConfig={setConfig} />;
 }
 
-await waitForElm(scriptConfig.sellerInfoId).then(async () => {
-    scriptConfig.shopInfo.scrapeSellerInfo(scriptConfig.sellerInfoId);
-    console.log(scriptConfig);
-
-    ReactDOM.createRoot(
-        ( () => {
-            
-            
-            if (!scriptConfig.shopInfo) throw new Error(`Shop info is null!`);
-            if (!scriptConfig.shopInfo.id) throw new Error(`There was an error getting the shop ID!`);
-        
-            const app = document.createElement('div');
-            document.body.prepend(app);
-            return app;
-        })(),
-        ).render(
-        <React.StrictMode>
-            <TcgPlayerSearch config={scriptConfig}/>
-        </React.StrictMode>,
-    );
-});
+const app = document.createElement('div');
+document.body.prepend(app);
+ReactDOM.createRoot(app).render(<React.StrictMode><Root /></React.StrictMode>);

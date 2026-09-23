@@ -18,13 +18,13 @@ export const AddCardBar: React.FC<CardListProps> = ({ cards, setCards }) => {
         const newCard = new Card({id: lowest, name: name});
         const updated = [...cards, newCard];
         setCards(updated);
-        console.log(updated);
+        setNewCardName('');
     }
 
     return (
-        <div id="add-cards" className='horz'>
+        <div id="add-cards" className='horz' style={{margin: "10px"}}>
             <Input 
-                style={{width: "20%"}}
+                style={{width: "60%"}}
                 id='new-card-field' 
                 type='text' 
                 value={newCardName}

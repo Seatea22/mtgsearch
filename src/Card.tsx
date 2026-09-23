@@ -65,17 +65,6 @@ export class Card {
     }
 }
 
-// export interface CardRow {
-//     name: StringField;
-//     maxPrice: NumberField;
-//     cheapest: BooleanField;
-//     flexible: BooleanField;
-//     relative: BooleanField;
-//     allowedPrintings: SelectionField;
-//     allowedConditions: SelectionField;
-//     collections: SplitStringField;
-// }
-
 export interface CardListProps {
     cards: Card[];
     setCards: React.Dispatch<React.SetStateAction<Card[]>>;
@@ -99,7 +88,7 @@ export const CARD_ROW_CONFIG: Array<CardField> = [
         inputType: "text",
         valueType: "string",
         specifier: "f_string",
-        cssStyles: {maxWidth: "150px"}
+        cssStyles: {}
     },
     {
         field: "maxPrice",

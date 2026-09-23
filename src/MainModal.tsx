@@ -5,11 +5,12 @@ import { CardTable } from './CardTable';
 import { AddCardBar } from './AddCard';
 import { DataSection, getModalVisibility, setModalVisibility } from './DataSection';
 import { TcgPlayerScriptConfig, ScriptConfigProps } from './SiteConfig';
-import { SearchPanel } from './SearchPanel';
+import { SearchPanel, SearchSettings } from './SearchPanel';
+import { TcgPlayerApi } from './PlatformApi';
 
 
 
-export const TcgPlayerSearch: React.FC<ScriptConfigProps> = ({ config }) => {
+export const TcgPlayerSearch: React.FC<ScriptConfigProps> = ({ config, setConfig }) => {
     const [modal, setModal] = useState(false);
     const [cards, setCards] = useState<Card[]>([]);
 
@@ -25,6 +26,12 @@ export const TcgPlayerSearch: React.FC<ScriptConfigProps> = ({ config }) => {
         setModalVisibility(!modal, config.hostname);
     }
 
+    const updateGlobalSearchSettings = (searchSettings: SearchSettings) => {
+        const newConfig = new TcgPlayerScriptConfig(config);
+        newConfig.searchSettings = searchSettings;
+        setConfig(newConfig);
+    }
+
     return (
         <div id='search-modal'>
             <Button 
@@ -37,12 +44,11 @@ export const TcgPlayerSearch: React.FC<ScriptConfigProps> = ({ config }) => {
             >
                 Card Search
             </Button>
-            <Modal size={'xl'} isOpen={modal} toggle={toggleModal}>
+            <Modal className="main-modal" isOpen={modal} toggle={toggleModal}>
                 <ModalHeader toggle={toggleModal}>Card List Search for {config.shopInfo.name}</ModalHeader>
                 <ModalBody className='fixed-height-modal'>
                     <UncontrolledAccordion 
                         defaultOpen={[
-                            '1',
                             '2'
                         ]}
                         stayOpen
@@ -62,13 +68,24 @@ export const TcgPlayerSearch: React.FC<ScriptConfigProps> = ({ config }) => {
                                 Search Panel
                             </AccordionHeader>
                             <AccordionBody accordionId='2'>
-                                <SearchPanel cards={cards} setCards={setCards} searchSettings={config.searchSettings} searchApi={config.searchApi}/>
+                                <SearchPanel 
+                                    cards={cards} 
+                                    setCards={setCards} 
+                                    searchSettings={config.searchSettings} 
+                                    searchApi={config.searchApi}
+                                    setSearchSettings={updateGlobalSearchSettings}
+                                />
                             </AccordionBody>
                         </AccordionItem>
                     </UncontrolledAccordion>
                 </ModalBody>
                 <ModalFooter>
-                    <DataSection searchSettings={config.searchSettings} cards={cards} setCards={setCards}/>
+                    <DataSection 
+                        searchSettings={config.searchSettings} 
+                        setSearchSettings={updateGlobalSearchSettings}
+                        cards={cards} 
+                        setCards={setCards}
+                    />
                 </ModalFooter>
             </Modal>
         </div>
